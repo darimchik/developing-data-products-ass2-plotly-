@@ -1,0 +1,55 @@
+---
+title: "US median earnings by state in 2017"
+author: "Darima Butitova"
+date: "1/21/2020"
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr:: opts_chunk$set(echo = FALSE)
+```
+
+## Overview
+
+The map shows median US earning by states in 2017 among civilians 16 years old and over. The data is retrieved from U.S. Census Bureau, 2013-2017 American Community Survey 5-Year Estimates.
+
+## US median earnings by state in 2017 
+```{r, comment="", echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(plotly)
+library(dplyr)
+library(ggplot2)
+medianEarnings <- read_csv("ACS_17_5YR_S2413_with_ann.csv")
+names(medianEarnings) <- medianEarnings[1,] # copy 1st row to header
+medianEarnings <- medianEarnings[-1,]
+medianEarnings <- medianEarnings[ , -grep("Error", names(medianEarnings)) ]  
+medianEarnings <- medianEarnings[,-1] 
+
+mystates <-data.frame(state=state.abb, median.earnings=medianEarnings[-c(9,52),3])
+names(mystates)[2] <-paste("median.earnings")
+mystates$median.earnings <- as.numeric(as.character(mystates$median.earnings))
+
+
+
+borders <- list(color=toRGB("green"))
+map_options <- list(
+        scope='usa',
+        projection=list(type='albers usa'),
+        showlakes=T,
+        lakecolor=toRGB('yellow')
+)
+
+
+plot_ly(mystates, z=mystates$median.earnings, locations=mystates$state,
+        type='choropleth', locationmode='USA-states',
+        color=mystates$median.earnings, colors="Blues", marker=list(line=borders)) %>%
+        layout( geo=map_options
+        )
+
+
+```
+
+
